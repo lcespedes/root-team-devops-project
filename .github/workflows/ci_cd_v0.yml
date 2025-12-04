@@ -1,0 +1,54 @@
+name: "CI_CD_Pipeline_v0"
+on:
+  push:
+    branches:
+      - main
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read app version
+        id: app_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/root-team-devops-project:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/root-team-devops-project:${{ env.VERSION }}
+
+      - name: Checkout root-team-devops-config repo
+        uses: actions/checkout@v4
+        with:
+          repository: rodric24/root-team-devops-config
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          path: root-team-devops-config
+
+      - name: Update k8s deployment version
+        run: |
+          cd root-team-devops-config
+
+          sed -i "s|image: rodric24/root-team-devops-project:.*|image: rodric24/root-team-devops-project:${{ env.VERSION }}|g" deployments/deployment.yaml
+
+          git config user.name "github_actions"
+          git config user.email "github_actions@asfi.gob.bo"
+          git add deployments/deployment.yaml
+          git commit -m "Actualizar versión de la imagen a ${{ env.VERSION }}"
+          git push https://x-access-token:${{ secrets.REPO_ACCESS_TOKEN }}@github.com/rodric24/root-team-devops-config.git
