@@ -37,7 +37,7 @@ jobs:
       - name: Checkout root-team-devops-config repo
         uses: actions/checkout@v4
         with:
-          repository: rodric24/root-team-devops-config
+          repository: lcespedes/root-team-devops-config
           token: ${{ secrets.REPO_ACCESS_TOKEN }}
           path: root-team-devops-config
 
@@ -45,10 +45,10 @@ jobs:
         run: |
           cd root-team-devops-config
 
-          sed -i "s|image: rodric24/root-team-devops-project:.*|image: rodric24/root-team-devops-project:${{ env.VERSION }}|g" deployments/deployment.yaml
+          sed -i "s|image: lcespedesm2/root-team-devops-project:.*|image: lcespedesm2/root-team-devops-project:${{ env.VERSION }}|g" deployments/deployment.yaml
 
           git config user.name "github_actions"
           git config user.email "github_actions@asfi.gob.bo"
           git add deployments/deployment.yaml
           git commit -m "Actualizar versión de la imagen a ${{ env.VERSION }}"
-          git push https://x-access-token:${{ secrets.REPO_ACCESS_TOKEN }}@github.com/rodric24/root-team-devops-config.git
+          git push https://x-access-token:${{ secrets.REPO_ACCESS_TOKEN }}@github.com/lcespedes/root-team-devops-config.git
