@@ -45,7 +45,7 @@ jobs:
         run: |
           cd root-team-devops-config
 
-          sed -i "s|image: lcespedesm2/root-team-devops-project:.*|image: lcespedesm2/root-team-devops-project:${{ env.VERSION }}|g" deployments/deployment.yaml
+          sed -i "s|image: lcespedesm/root-team-devops-project:.*|image: lcespedesm/root-team-devops-project:${{ env.VERSION }}|g" deployments/deployment.yaml
 
           git config user.name "github_actions"
           git config user.email "github_actions@asfi.gob.bo"
